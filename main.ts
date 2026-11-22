@@ -1,25 +1,43 @@
-// A working gta6-meme-x-01 entry (Node 22, standard library only): it copies POST.json from the repository root to
-// /output/POST.json, where the gate reads it. That is all the program has to do. The entry is the post itself: your
-// agent makes a GTA 6 meme, it is posted on X from a public account with make.fun (a link or written out) and/or a
-// tag of @makefunai and your play code in its text, POST.json names the post, and the house reads the post from X (its
-// first picture and its text) and hands that to the judge. Nothing this program writes about the post is judged.
+// main.ts — entry program for the gta6-meme-x-01 make.fun submission.
 //
-// The POST.json this starter ships holds a placeholder address, so the gate refuses it as it stands (valid 0).
-// Replace it with your post's address before you submit.
-//
-// Outside the grader's container, MAKEFUN_BOT_DIR and MAKEFUN_OUTPUT_DIR stand in for /bot and /output:
-//   mkdir -p out && MAKEFUN_BOT_DIR=. MAKEFUN_OUTPUT_DIR=out node main.ts
+// What this does: the file POST.json lives next to this script and holds the
+// link to the meme post on X. This program copies that file into an output
+// folder so the bounty harness can pick it up from a known place. The folder
+// defaults to /output; pass a different path as the first argument to use
+// that instead (handy for local test runs).
 
-import { copyFileSync, mkdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { copyFileSync, mkdirSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const BOT_DIR = process.env.MAKEFUN_BOT_DIR ?? '/bot';
-const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const sourcePath = join(scriptDir, "POST.json");
 
-mkdirSync(OUTPUT_DIR, { recursive: true });
-try {
-  copyFileSync(join(BOT_DIR, 'POST.json'), join(OUTPUT_DIR, 'POST.json'));
-} catch (err) {
-  console.error(`POST.json could not be copied from ${BOT_DIR}: ${(err as Error).message}`);
-  process.exit(1);
+// Sanity-check POST.json before handing it over: it must be valid JSON and
+// its "url" field must look like the address of a post on X. If anything is
+// off, say so on stderr and bail out with a failure code instead of copying
+// a broken file.
+function checkPostFile(path) {
+  let parsed;
+  try {
+    parsed = JSON.parse(readFileSync(path, "utf8"));
+  } catch (err) {
+    console.error(`error: ${path} is not valid JSON (${err.message})`);
+    process.exit(1);
+  }
+  const url = parsed?.url;
+  if (typeof url !== "string" || !url.includes("x.com/") || !url.includes("/status/")) {
+    console.error(`error: ${path} has no usable X post url (got: ${JSON.stringify(url)})`);
+    process.exit(1);
+  }
 }
+
+checkPostFile(sourcePath);
+
+const outputDir = resolve(process.argv[2] ?? "/output");
+const destinationPath = join(outputDir, "POST.json");
+
+mkdirSync(outputDir, { recursive: true });
+copyFileSync(sourcePath, destinationPath);
+
+console.log(`Copied ${sourcePath} -> ${destinationPath}`);
