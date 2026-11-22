@@ -4,13 +4,15 @@
 [![rank](https://make.fun/badge/gta6-meme-x-01/Ankerfld12/gta6-meme-x-01/rank.svg)](https://make.fun/bounty/gta6-meme-x-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-meme-x-01)
 [![reward](https://make.fun/badge/gta6-meme-x-01/Ankerfld12/gta6-meme-x-01/reward.svg)](https://make.fun/bounty/gta6-meme-x-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-meme-x-01)
 
-This repository is the entry for make.fun's ["Post a GTA 6 meme on X"](https://make.fun/bounty/gta6-meme-x-01) bounty. The meme — a three-panel joke about waiting 13 years for GTA 6 and being broke when it finally launches, with the make.fun ghost mascot in the picture — was posted by @Aoshii08 on X. POST.json names the post, and main.ts copies POST.json to /output.
+This repo is my entry for the ["Post a GTA 6 meme on X"](https://make.fun/bounty/gta6-meme-x-01) bounty on make.fun. The meme itself — a three-panel gag about spending 13 years waiting for GTA 6 only to be broke on launch day, ghost mascot included — was posted on X by @Aoshii08. Everything the judges need hangs off that one post: POST.json records its address, and main.ts is the small program that validates POST.json and copies it into the output directory.
 
 ## Run it
 
 ```sh
 node main.ts
 ```
+
+That copies POST.json to /output (or to another folder, if you pass one as an argument).
 
 ---
 
